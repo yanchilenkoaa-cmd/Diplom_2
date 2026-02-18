@@ -1,5 +1,6 @@
 package api;
 
+import io.qameta.allure.Step;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.response.ValidatableResponse;
 import models.OrderRequest;
@@ -17,8 +18,9 @@ public class ApiClient {
 
     public ApiClient(RequestSpecification requestSpec) {
         this.requestSpec = requestSpec;
-    }
 
+    }
+    @Step("Регистрация нового пользователя")
     public ValidatableResponse registerUser(UserCredentials credentials) {
         return given()
                 .spec(requestSpec)
@@ -28,6 +30,7 @@ public class ApiClient {
                 .then();
     }
 
+    @Step("Авторизация пользователя")
     public ValidatableResponse loginUser(UserCredentials credentials) {
         return given()
                 .spec(requestSpec)
@@ -37,6 +40,7 @@ public class ApiClient {
                 .then();
     }
 
+    @Step("Получение списка ингредиентов")
     public ValidatableResponse getIngredients() {
         return given()
                 .spec(requestSpec)
@@ -46,6 +50,7 @@ public class ApiClient {
     }
 
 
+    @Step("Создание заказа")
     public ValidatableResponse createOrder(OrderRequest orderRequest, String token) {
         RequestSpecification spec = given().spec(requestSpec).body(orderRequest);
 
@@ -60,6 +65,7 @@ public class ApiClient {
         return spec.when().post(ENDPOINT_ORDERS).then();
     }
 
+    @Step("Получение ингредиентов с авторизацией")
     public ValidatableResponse getIngredients(String token) {
         RequestSpecification spec = given().spec(requestSpec);
 

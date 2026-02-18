@@ -26,28 +26,25 @@ public class IngredientsTests extends BaseTest {
     // === Успешное получение ингредиентов: проверки для авторизованного и неавторизованного запросов ===
 
     @Test
-    @DisplayName("Статус 200 при получении ингредиентов с авторизацией")
-    @Description("Проверка, что авторизованный пользователь получает статус 200")
-    public void checkStatusCodeWithAuth() {
+    @DisplayName("Статус 200 и наличие поля success=true при получении ингредиентов с авторизацией")
+    @Description("Проверка, что авторизованный пользователь получает статус 200 и поле success=true")
+    public void checkStatusCodeAndSuccessWithAuth() {
         ValidatableResponse response = getIngredients(token);
-        response.statusCode(STATUS_OK);
+        response
+                .statusCode(STATUS_OK)
+                .body("success", equalTo(true));
     }
 
     @Test
-    @DisplayName("Статус 200 при получении ингредиентов без авторизации")
-    @Description("Проверка, что неавторизованный запрос также возвращает статус 200")
-    public void checkStatusCodeWithoutAuth() {
+    @DisplayName("Статус 200 и наличие поля success=true при получении ингредиентов без авторизации")
+    @Description("Проверка, что неавторизованный запрос возвращает статус 200 и поле success=true")
+    public void checkStatusCodeAndSuccessWithoutAuth() {
         ValidatableResponse response = getIngredients(null);
-        response.statusCode(STATUS_OK);
+        response
+                .statusCode(STATUS_OK)
+                .body("success", equalTo(true));
     }
 
-    @Test
-    @DisplayName("Наличие поля success в ответе")
-    @Description("Проверка, что ответ содержит поле success=true")
-    public void checkSuccessField() {
-        ValidatableResponse response = getIngredients(null);
-        response.body("success", equalTo(true));
-    }
 
     @Test
     @DisplayName("Наличие массива data в ответе")
