@@ -68,32 +68,25 @@ public class OrderTests extends BaseTest {
         apiClient.createOrder(orderRequest, token).body("name", notNullValue());
     }
 
-    // === Создание заказа без авторизации: отдельные тесты ===
+    // === Создание заказа без авторизации: объединённый тест (ИСПРАВЛЕНИЕ 1) ===
 
     @Test
-    @DisplayName("Статус 401 при создании заказа без авторизации")
-    @Description("Проверка, что неавторизованный запрос возвращает 401")
-    public void checkStatusCodeOnCreateOrderWithoutAuth() {
+    @DisplayName("Проверка полного ответа при создании заказа без авторизации")
+    @Description("Тест проверяет полный ответ API для неавторизованного запроса: статус 401, success=false, сообщение об ошибке")
+    // ЗАМЕНЕНО: три отдельных теста на один комплексный
+    public void checkFullResponseOnCreateOrderWithoutAuth() {
         OrderRequest orderRequest = new OrderRequest(ingredients);
-        apiClient.createOrder(orderRequest, null).statusCode(STATUS_UNAUTHORIZED);
-    }
 
-    @Test
-    @DisplayName("Поле success=false при создании заказа без авторизации")
-    @Description("Проверка значения success для неавторизованного запроса")
-    public void checkSuccessFieldOnCreateOrderWithoutAuth() {
-        OrderRequest orderRequest = new OrderRequest(ingredients);
-        apiClient.createOrder(orderRequest, null).body("success", equalTo(false));
-    }
-
-    @Test
-    @DisplayName("Сообщение об ошибке при создании заказа без авторизации")
-    @Description("Проверка текста сообщения для неавторизованного запроса")
-    public void checkErrorMessageOnCreateOrderWithoutAuth() {
-        OrderRequest orderRequest = new OrderRequest(ingredients);
         apiClient.createOrder(orderRequest, null)
+                .statusCode(STATUS_UNAUTHORIZED)
+                .body("success", equalTo(false))
                 .body("message", containsString("You should be authorised"));
     }
+
+    // Удалены старые тесты:
+    // - checkStatusCodeOnCreateOrderWithoutAuth()
+    // - checkSuccessFieldOnCreateOrderWithoutAuth()
+    // - checkErrorMessageOnCreateOrderWithoutAuth()
 
     // === Другие сценарии: разбиваем на отдельные проверки ===
 
@@ -106,23 +99,23 @@ public class OrderTests extends BaseTest {
         apiClient.createOrder(orderRequest, token).statusCode(STATUS_OK);
     }
 
-    @Test
-    @DisplayName("Статус 400 при создании заказа без ингредиентов")
-    @Description("Проверка статуса для пустого массива ингредиентов")
-    public void checkStatusCodeWithoutIngredients() {
-        OrderRequest emptyOrder = new OrderRequest(List.of());
-        apiClient.createOrder(emptyOrder, token).statusCode(STATUS_BAD_REQUEST);
-    }
+    // === Объединённый тест для пустого массива ингредиентов (ИСПРАВЛЕНИЕ 2) ===
 
     @Test
-    @DisplayName("Поле success=false и сообщение об ошибке при создании заказа без ингредиентов")
-    @Description("Проверка success и сообщения для пустого массива ингредиентов")
-    public void checkErrorResponseWithoutIngredients() {
+    @DisplayName("Проверка полного ответа при создании заказа без ингредиентов")
+    @Description("Тест проверяет статус 400, success=false и сообщение 'Ingredient ids must be provided'")
+    // ЗАМЕНЕНО: два отдельных теста на один комплексный
+    public void checkFullErrorResponseWithoutIngredients() {
         OrderRequest emptyOrder = new OrderRequest(List.of());
+
         apiClient.createOrder(emptyOrder, token)
+                .statusCode(STATUS_BAD_REQUEST)
                 .body("success", equalTo(false))
                 .body("message", equalTo("Ingredient ids must be provided"));
     }
+
+    // Удален старый тест checkErrorResponseWithoutIngredients()
+    // Старый тест checkStatusCodeWithoutIngredients() также удалён, его логика включена в новый тест
 
     @Test
     @DisplayName("Статус 500 при создании заказа с некорректными ингредиентами")
@@ -133,3 +126,4 @@ public class OrderTests extends BaseTest {
         apiClient.createOrder(orderRequest, token).statusCode(STATUS_INTERNAL_ERROR);
     }
 }
+
